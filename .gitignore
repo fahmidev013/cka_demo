@@ -6,6 +6,9 @@ pyvenv.cfg
 # C extensions
 *.so
 
+# VScode Debug
+.vscode/
+
 
 # Distribution / packaging
 .Python

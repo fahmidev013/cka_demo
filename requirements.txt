@@ -1,1 +1,12 @@
+# BASE 
 flask 
+streamlit
+requests
+dotenv
+flask_cors
+
+
+# Chatbot
+openai
+langchain
+langchain_community
