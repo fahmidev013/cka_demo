@@ -6,6 +6,7 @@ from flask_cors import CORS
 from langchain_community.llms import OpenAI  
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
+import pandas as pd
 
 load_dotenv()
 
