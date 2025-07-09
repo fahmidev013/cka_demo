@@ -1,4 +1,4 @@
 import streamlit as st
 import requests
-from pages import *
+from page import *
 from utils import *
