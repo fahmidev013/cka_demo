@@ -1,6 +1,13 @@
 from backend import *
 from frontend.utils import *
 
+# Load dataset
+customers_data = pd.read_csv("customer_data.csv")
+
+@app.route('/customers', methods=['GET'])
+def get_customers():
+    return jsonify(customers_data.to_dict(orient="records"))
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
