@@ -1,8 +1,10 @@
 from backend import *
 from frontend.utils import *
 
+
 # Load dataset
-customers_data = pd.read_csv("customer_data.csv")
+root_directory = os.getcwd()
+customers_data = pd.read_csv(f"{root_directory}/data/customer_data.csv")
 
 @app.route('/customers', methods=['GET'])
 def get_customers():
