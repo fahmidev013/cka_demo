@@ -10,9 +10,6 @@ customers_data = pd.read_csv(f"{root_directory}/data/customer_data.csv")
 def get_customers():
     return jsonify(customers_data.to_dict(orient="records"))
 
-@app.route('/test', methods=['GET'])
-def test():
-    return "<h3>This is test</h3>"
 
 @app.route("/chat", methods=["POST"])
 def chat():
