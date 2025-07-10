@@ -4,6 +4,7 @@ streamlit
 requests
 dotenv
 flask_cors
+gunicorn
 
 
 # Chatbot

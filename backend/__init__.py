@@ -17,3 +17,8 @@ CORS(app)
 
 llm = OpenAI()
 conversation = ConversationChain(llm=llm, memory=ConversationBufferMemory())
+
+
+if __name__ == '__main__':
+    app.run()
+
