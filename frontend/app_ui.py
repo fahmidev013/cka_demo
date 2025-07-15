@@ -2,7 +2,7 @@ from packages import *
 
 # Sidebar Navigasi
 st.sidebar.title("CKA Artificial Intelligence")
-menu = st.sidebar.radio("List Application", ["Chatbot", "Data Science", "Information Extractor", "Face Recognition", "Web Scrapping"])
+menu = st.sidebar.radio("List Application", ["Chatbot", "Web Scrapping", "Data Science", "Information Extractor", "Face Recognition"])
 
 # Routing halaman berdasarkan menu yang dipilih
 if menu == "Chatbot":
@@ -13,5 +13,5 @@ if menu == "Chatbot":
 #     informationExtractorPage()
 # elif menu == "Face Recognition":
 #     faceRecognitionPage()
-# elif menu == "Web Scrapping":
-#     webScrappingPage()
+elif menu == "Web Scrapping":
+    webScrappingPage()

@@ -1,7 +1,6 @@
 # BASE 
 flask 
 streamlit
-requests
 dotenv
 flask_cors
 gunicorn
@@ -14,3 +13,11 @@ langchain_community
 
 # Data Analis
 pandas
+
+# Web Scrapping
+bs4
+selenium
+sqlalchemy
+folium
+streamlit_folium
+streamlit_geolocation
