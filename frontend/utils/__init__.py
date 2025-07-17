@@ -1,2 +1,2 @@
 from .contants import *
-# from .functions import *
+from .functions import *

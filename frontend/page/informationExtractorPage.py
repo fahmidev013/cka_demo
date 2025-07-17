@@ -1,3 +1,6 @@
+from packages import *
+from utils.contants import BASE_URL
+
 def informationExtractorPage():
     st.title("PDF Information Extractor")
     st.write("Information Extractor digunakan untuk mengekstrak teks dan entitas dari file PDF. Anda dapat mengunggah file PDF dan melihat teks yang diekstrak beserta entitas yang teridentifikasi.")

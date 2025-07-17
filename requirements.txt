@@ -13,6 +13,12 @@ langchain_community
 
 # Data Analis
 pandas
+scikit-learn
+xgboost
+plotly
+matplotlib
+seaborn
+reportlab
 
 # Web Scrapping
 bs4
@@ -21,3 +27,8 @@ sqlalchemy
 folium
 streamlit_folium
 streamlit_geolocation
+
+# Information Extractor
+transformers
+pdfplumber
+torch
