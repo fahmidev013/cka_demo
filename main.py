@@ -109,35 +109,24 @@ def search_nearby_places():
     return jsonify(results)
 
 
-@app.route("/extract", methods=["GET"])
+@app.route("/extract", methods=["POST"])
 def extract_information():
-    # if "file" not in request.files:
-    #     return jsonify({"error": "No file uploaded"}), 400
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
 
-    # root_directory = os.getcwd()
-    # random_integer = random.randint(1, 99)
-    # file = request.files["file"]
-    # file_path = f"{root_directory}\\data\\upload\\demofile_{random_integer}.pdf"
-    # file.save(file_path)
+    root_directory = os.getcwd()
+    random_integer = random.randint(1, 99)
+    file = request.files["file"]
+    file_path = f"{root_directory}\\data\\upload\\demofile_{random_integer}.pdf"
+    file.save(file_path)
 
     # Ekstraksi teks
-    # text = extract_text_from_pdf(file_path)
-    
-    text = "Presiden Joko Widodo mengunjungi Kota Bandung pada hari Senin."
-    ner_results = extract_ner(text)
-    result = {}
-    for token, label in ner_results:
-        result[token] = label
-        # print(f"{token} => {label}")
-
+    text = extract_text_from_pdf(file_path)
 
     # Ekstraksi entitas menggunakan model NLP
-    # entities = nlp(text)
-    # categorized_entities = categorize_entities(entities)
-    # print(categorized_entities)
-    print(ner_results)
-    print(f" RESULT  {result}")
-    return jsonify({"text": ner_results, "entities": result})
+    entities = nlp(text)
+    categorized_entities = categorize_entities(entities)
+    return jsonify({"text": text, "entities": categorized_entities})
 
 
 # Endpoiunt untuk Prediksi Cluster

@@ -85,48 +85,20 @@ churn_model.fit(X, y)
 # nlp = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-english")
 
 
-from transformers import AutoTokenizer, TFAutoModelForTokenClassification
-import tensorflow as tf
+from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 import streamlit as st
 
 # Load model dan tokenizer
-MODEL_NAME = "aadhistii/DistilBERT-Indonesian-NER"
-
 @st.cache_resource
 def load_model():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = TFAutoModelForTokenClassification.from_pretrained(MODEL_NAME)
-    return tokenizer, model
+    model_name = "gagan3012/bert-tiny-finetuned-ner"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    # model = AutoModelForTokenClassification.from_pretrained(model_name)
+    nlp = pipeline("ner", model=model_name, aggregation_strategy="simple")
+    return nlp
 
-tokenizer, model = load_model()
+nlp = load_model()
 
-def extract_ner(text):
-    inputs = tokenizer(text.split(),
-                       is_split_into_words=True,
-                       return_tensors="tf",
-                       padding=True,
-                       truncation=True)
-
-    outputs = model(inputs)
-    logits = outputs.logits
-    predictions = tf.argmax(logits, axis=-1).numpy()[0]
-    tokens = inputs["input_ids"][0].numpy()
-    print(f"token  {tokens}")
-    print(f"predictions  {predictions}")
-
-    labels = model.config.id2label
-    print(f"labels  {labels}")
-    results = []
-
-    for token_id, pred_id in zip(tokens, predictions):
-        token = tokenizer.decode([token_id])
-        label = labels[pred_id]
-        results.append((token, label))
-        print(f"HASIL  {token} -- {label}")
-        # if label != "O":
-        #     results.append((token, label))
-    print(f"results  {results}")
-    return results
 
 
 # from transformers import AutoModel, AutoTokenizer, pipeline

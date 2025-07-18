@@ -32,5 +32,3 @@ streamlit_geolocation
 transformers
 pdfplumber
 torch
-tensorflow
-tf-keras
