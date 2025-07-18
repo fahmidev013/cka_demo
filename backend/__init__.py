@@ -23,7 +23,7 @@ from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from transformers import pipeline
+# from transformers import pipeline
 
 load_dotenv()
 
@@ -80,9 +80,61 @@ churn_model.fit(X, y)
 #  INFORMATION XTRACTOR
 # Load model NER dari Hugging Face
 # nlp = pipeline("ner", model="dbmdz/bert-base-cased-finetuned-conll03-english")
-nlp = pipeline("ner", model="dslim/distilbert-NER")
+# nlp = pipeline("ner", model="dslim/distilbert-NER")
+# nlp = pipeline("ner", from_tf=True, model="aadhistii/DistilBERT-Indonesian-NER")
 # nlp = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-english")
 
+
+from transformers import AutoTokenizer, TFAutoModelForTokenClassification
+import tensorflow as tf
+import streamlit as st
+
+# Load model dan tokenizer
+MODEL_NAME = "aadhistii/DistilBERT-Indonesian-NER"
+
+@st.cache_resource
+def load_model():
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    model = TFAutoModelForTokenClassification.from_pretrained(MODEL_NAME)
+    return tokenizer, model
+
+tokenizer, model = load_model()
+
+def extract_ner(text):
+    inputs = tokenizer(text.split(),
+                       is_split_into_words=True,
+                       return_tensors="tf",
+                       padding=True,
+                       truncation=True)
+
+    outputs = model(inputs)
+    logits = outputs.logits
+    predictions = tf.argmax(logits, axis=-1).numpy()[0]
+    tokens = inputs["input_ids"][0].numpy()
+    print(f"token  {tokens}")
+    print(f"predictions  {predictions}")
+
+    labels = model.config.id2label
+    print(f"labels  {labels}")
+    results = []
+
+    for token_id, pred_id in zip(tokens, predictions):
+        token = tokenizer.decode([token_id])
+        label = labels[pred_id]
+        results.append((token, label))
+        print(f"HASIL  {token} -- {label}")
+        # if label != "O":
+        #     results.append((token, label))
+    print(f"results  {results}")
+    return results
+
+
+# from transformers import AutoModel, AutoTokenizer, pipeline
+# model_name = "aadhistii/DistilBERT-Indonesian-NER"
+
+# model = AutoModel.from_pretrained(model_name, from_tf=True)
+# tokenizer = AutoTokenizer.from_pretrained(model_name)
+# nlp = pipeline(tokenizer, model=f"{model}")
 
 if __name__ == '__main__':
     app.run()
