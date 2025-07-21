@@ -8,7 +8,7 @@ from flask_cors import CORS
 from langchain_community.llms import OpenAI  
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
-import pandas as pd
+
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -18,11 +18,6 @@ from sqlalchemy import Column, Integer, Float, String, Text, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from data.models import Company, get_engine_and_session
 
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-import xgboost as xgb
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 # from transformers import pipeline
 
 load_dotenv()
@@ -44,37 +39,7 @@ conversation = ConversationChain(llm=llm, memory=ConversationBufferMemory())
 
 # Load dataset
 root_directory = os.getcwd()
-customers_data = pd.read_csv(f"{root_directory}\\data\\customer_data.csv")
-# Load dataset
-data = pd.read_csv(f"{root_directory}\\data\\customer_data.csv")
 
-
-products = ["Laptop", "Smartphone", "Tablet", "Headphone", "Smartwatch", "Kamera", "Speaker", "Mouse", "Keyboard"]
-
-
-# Preprocessing: Standarisasi Data
-scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data[["Age", "Income", "SpendingScore"]])
-
-# K-Means Clustering
-kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-data["Cluster"] = kmeans.fit_predict(data_scaled)
-
-# **Loyalty Score** → Skor berdasarkan jumlah transaksi & nilai total pembelian
-data["LoyaltyScore"] = (data["SpendingScore"] + (data["Income"] / 1000)) / 2
-
-# **Customer Lifetime Value (CLV)** → Menghitung CLV sederhana
-data["CLV"] = data["SpendingScore"] * data["Income"] / 1000
-
-# **Prediksi Churn**
-# Simulasi: Anggap pelanggan dengan Spending Score < 30 memiliki risiko churn tinggi
-data["Churn"] = (data["SpendingScore"] < 30).astype(int)
-
-# Model Prediksi Churn
-X = data[["Age", "Income", "SpendingScore", "LoyaltyScore", "CLV"]]
-y = data["Churn"]
-churn_model = xgb.XGBClassifier(objective="binary:logistic", base_score=0.5)
-churn_model.fit(X, y)
 
 
 #  INFORMATION XTRACTOR

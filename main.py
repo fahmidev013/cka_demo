@@ -3,15 +3,6 @@ from frontend.utils import *
 import random
 
 
-@app.route('/customers', methods=['GET'])
-def get_customers():
-    return jsonify(customers_data.to_dict(orient="records"))
-
-@app.route('/reviews', methods=['GET'])
-def get_reviews():
-    return jsonify(data[["Name", "Review", "Sentiment"]].to_dict(orient="records"))
-
-
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -128,39 +119,3 @@ def extract_information():
     categorized_entities = categorize_entities(entities)
     return jsonify({"text": text, "entities": categorized_entities})
 
-
-# Endpoiunt untuk Prediksi Cluster
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        request_data = request.get_json()
-        age = request_data["Age"]
-        income = request_data["Income"]
-        spending = request_data["SpendingScore"]
-
-        # Standarisasi input
-        input_scaled = scaler.transform([[age, income, spending]])
-        cluster = kmeans.predict(input_scaled)
-
-        return jsonify({"Cluster": int(cluster[0])})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-# Download LAPORAN ANALISA PELANGGAN
-@app.route('/report', methods=['GET'])
-def generate_report():
-    pdf_filename = "customer_report.pdf"
-    c = canvas.Canvas(pdf_filename, pagesize=letter)
-    c.drawString(100, 750, "Customer Analytics Report")
-    
-    y_position = 730
-    for index, row in data.iterrows():
-        text = f"{row['Name']} - Age: {row['Age']}, Income: {row['Income']}, Spending Score: {row['SpendingScore']}, Cluster: {row['Cluster']}"
-        c.drawString(100, y_position, text)
-        y_position -= 20
-        if y_position < 100:
-            c.showPage()
-            y_position = 750
-
-    c.save()
-    return send_file(pdf_filename, as_attachment=True)
