@@ -48,7 +48,7 @@ root_directory = os.getcwd()
 # nlp = pipeline("ner", model="dslim/distilbert-NER")
 # nlp = pipeline("ner", from_tf=True, model="aadhistii/DistilBERT-Indonesian-NER")
 # nlp = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-english")
-
+# model_name = "gagan3012/bert-tiny-finetuned-ner"
 
 from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 import streamlit as st
@@ -56,7 +56,7 @@ import streamlit as st
 # Load model dan tokenizer
 @st.cache_resource
 def load_model():
-    model_name = "gagan3012/bert-tiny-finetuned-ner"
+    model_name = "dslim/distilbert-NER"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     # model = AutoModelForTokenClassification.from_pretrained(model_name)
     nlp = pipeline("ner", model=model_name, aggregation_strategy="simple")
