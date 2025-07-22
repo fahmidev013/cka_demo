@@ -12,13 +12,13 @@ langchain
 langchain_community
 
 # Data Analis
-pandas
-scikit-learn
-xgboost
-plotly
-matplotlib
-seaborn
-reportlab
+# pandas
+# scikit-learn
+# xgboost
+# plotly
+# matplotlib
+# seaborn
+# reportlab
 
 # Web Scrapping
 bs4
@@ -31,4 +31,5 @@ streamlit_geolocation
 # Information Extractor
 transformers
 pdfplumber
-torch
+torch==2.2.2+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu

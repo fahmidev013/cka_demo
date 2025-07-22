@@ -23,3 +23,4 @@ def categorize_entities(entities):
         if "@" in entity['word'] or "+" in entity['word']:
             categorized["CONTACT"].append(entity['word'])
     return categorized
+
