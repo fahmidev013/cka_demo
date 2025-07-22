@@ -7,6 +7,4 @@ from streamlit_folium import st_folium
 import streamlit.components.v1 as components
 
 
-# import plotly.express as px
-# import matplotlib.pyplot as plt
-# import seaborn as sns
+

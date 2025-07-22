@@ -119,3 +119,141 @@ def extract_information():
     categorized_entities = categorize_entities(entities)
     return jsonify({"text": text, "entities": categorized_entities})
 
+
+
+@app.route('/customers', methods=['GET'])
+def get_customers():
+    return jsonify(data.to_dict(orient="records"))
+
+
+# Endpoiunt untuk Prediksi Cluster
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        request_data = request.get_json()
+        age = request_data["Age"]
+        income = request_data["Income"]
+        spending = request_data["SpendingScore"]
+
+        # Standarisasi input
+        input_scaled = scaler.transform([[age, income, spending]])
+        cluster = kmeans.predict(input_scaled)
+
+        return jsonify({"Cluster": int(cluster[0])})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+# Download LAPORAN ANALISA PELANGGAN
+@app.route('/report', methods=['GET'])
+def generate_report():
+    pdf_filename = "customer_report.pdf"
+    c = canvas.Canvas(pdf_filename, pagesize=letter)
+    c.drawString(100, 750, "Customer Analytics Report")
+    
+    y_position = 730
+    for index, row in data.iterrows():
+        text = f"{row['Name']} - Age: {row['Age']}, Income: {row['Income']}, Spending Score: {row['SpendingScore']}, Cluster: {row['Cluster']}"
+        c.drawString(100, y_position, text)
+        y_position -= 20
+        if y_position < 100:
+            c.showPage()
+            y_position = 750
+
+    c.save()
+    return send_file(pdf_filename, as_attachment=True)
+
+# Endpoint untuk mengukur tingkat resiko pelanggan
+@app.route('/report_churn', methods=['GET'])
+def generate_report_churn():
+    pdf_filename = "customer_report_churn.pdf"
+    c = canvas.Canvas(pdf_filename, pagesize=letter)
+    c.drawString(100, 750, "Customer Analytics Report")
+    
+    y_position = 730
+    for index, row in data.iterrows():
+        text = f"{row['Name']} - Loyalty: {row['LoyaltyScore']:.2f}, CLV: {row['CLV']:.2f}, Churn Risk: {row['Churn']}"
+        c.drawString(100, y_position, text)
+        y_position -= 20
+        if y_position < 100:
+            c.showPage()
+            y_position = 750
+
+    c.save()
+    return send_file(pdf_filename, as_attachment=True)
+
+# **Fungsi Analisis Sentimen**
+def analyze_sentiment(text):
+    sentiment = TextBlob(text).sentiment.polarity
+    return "Positif" if sentiment > 0 else "Negatif" if sentiment < 0 else "Netral"
+
+data["Sentiment"] = data["Review"].apply(analyze_sentiment)
+
+@app.route('/reviews', methods=['GET'])
+def get_reviews():
+    return jsonify(data[["Name", "Review", "Sentiment"]].to_dict(orient="records"))
+
+
+# Enpoint untuk Sentimen Ulasan
+@app.route('/analyze_review', methods=['POST'])
+def analyze_review():
+    try:
+        request_data = request.get_json()
+        review_text = request_data["Review"]
+        sentiment = analyze_sentiment(review_text)
+        return jsonify({"Review": review_text, "Sentiment": sentiment})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+# **Fungsi Rekomendasi Produk**
+def recommend_products(customer_name):
+    if customer_name not in data["Name"].values:
+        return []
+    
+    # Ambil data pelanggan
+    customer_index = data[data["Name"] == customer_name].index[0]
+    # Hitung kemiripan dengan pelanggan lain
+    product_matrix = data.iloc[:, 1:].values
+    similarities = cosine_similarity(product_matrix)
+    
+    
+    # Rekomendasi berdasarkan pelanggan paling mirip
+    similar_customer_index = np.argsort(similarities[customer_index])[-2]  # Ambil pelanggan paling mirip selain dirinya sendiri
+    recommended_products = []
+    
+    for product in products:
+        if data.loc[customer_index, product] == 0 and data.loc[similar_customer_index, product] == 1:
+            recommended_products.append(product)
+    
+    return recommended_products
+
+#Endpoint untuk Sistem Rekomendasi
+@app.route('/recommend', methods=['POST'])
+def get_recommendations():
+    try:
+        request_data = request.get_json()
+        customer_name = request_data["Name"]
+        recommendations = recommend_products(customer_name)
+        print(recommendations)
+        return jsonify({"Name": customer_name, "Recommendations": str(recommendations)})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route('/predict_churn', methods=['POST'])
+def predict_churn():
+    try:
+        request_data = request.get_json()
+        age_churn = request_data["Age"]
+        income_churn = request_data["Income"]
+        spending_churn = request_data["SpendingScore"]
+        
+        loyalty = (spending_churn + (income_churn / 1000)) / 2
+        clv = spending_churn * income_churn / 1000
+
+        input_data = np.array([[age_churn, income_churn, spending_churn, loyalty, clv]])
+        churn_prob = churn_model.predict_proba(input_data)[0][1]  
+        return jsonify({"Churn_Probability": float(churn_prob)})
+    except Exception as e:
+        print('Res Error')
+        return jsonify({"error": str(e)})
