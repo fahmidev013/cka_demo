@@ -7,8 +7,8 @@ menu = st.sidebar.radio("List Application", ["Chatbot", "Web Scrapping", "Inform
 # Routing halaman berdasarkan menu yang dipilih
 if menu == "Chatbot":
     chatbotPage()
-# elif menu == "Data Science":
-#     dataSciencePage()
+elif menu == "Data Science":
+    dataSciencePage()
 elif menu == "Information Extractor":
     informationExtractorPage()
 # elif menu == "Face Recognition":

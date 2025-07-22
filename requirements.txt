@@ -12,13 +12,14 @@ langchain
 langchain_community
 
 # Data Analis
-# pandas
-# scikit-learn
-# xgboost
-# plotly
-# matplotlib
-# seaborn
-# reportlab
+pandas
+scikit-learn
+xgboost
+plotly
+matplotlib
+seaborn
+reportlab
+textblob
 
 # Web Scrapping
 bs4
