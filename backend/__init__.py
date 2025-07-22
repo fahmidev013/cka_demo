@@ -51,7 +51,7 @@ conversation = ConversationChain(llm=llm, memory=ConversationBufferMemory())
 
 # Load dataset
 root_directory = os.getcwd()
-data = pd.read_csv(f"{root_directory}\\data\\customer_data.csv")
+data = pd.read_csv(f"{root_directory}/data/customer_data.csv")
 products = ["Laptop", "Smartphone", "Tablet", "Headphone", "Smartwatch", "Kamera", "Speaker", "Mouse", "Keyboard"]
 
 
@@ -99,7 +99,7 @@ def load_model():
     model_name = "dslim/distilbert-NER"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     # model = AutoModelForTokenClassification.from_pretrained(model_name)
-    nlp = pipeline("ner", model=model_name, aggregation_strategy="simple")
+    nlp = pipeline("ner", model=model_name)
     return nlp
 
 nlp = load_model()
