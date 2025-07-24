@@ -1,6 +1,6 @@
 from packages import *
 from utils.contants import BASE_URL
-
+import os
 
 
 def informationExtractorPage():
@@ -32,6 +32,18 @@ def informationExtractorPage():
     
     st.title("PDF Information Extractor")
     st.write("Information Extractor digunakan untuk mengekstrak teks dan entitas dari file PDF. Anda dapat mengunggah file PDF dan melihat teks yang diekstrak beserta entitas yang teridentifikasi.")
+    # Baca file PDF dalam mode biner
+    root_directory = os.getcwd()
+    with open(f"{root_directory}/data/sample_document.pdf", "rb") as file:
+        pdf_bytes = file.read()
+
+    # Tampilkan tombol download
+    st.download_button(
+        label="📄 Download Template File PDF",
+        data=pdf_bytes,
+        file_name="CKA Information Extractor.pdf",
+        mime="application/pdf"
+    )
 
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
 
