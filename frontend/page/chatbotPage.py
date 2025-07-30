@@ -12,7 +12,7 @@ def chatbotPage():
 
     if st.button("Kirim"):
         if user_input:
-            response = requests.post(f'{BASE_URL}/chat', json={"message": user_input})
+            response = requests.post(f'{BASE_URL}/chatbot', json={"message": user_input})
             bot_response = response.json().get("response", "Error")
             
             # Simpan percakapan ke dalam session state
