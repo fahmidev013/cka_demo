@@ -5,9 +5,6 @@ from frontend.utils.contants import *
 from frontend.utils.functions import *
 from dotenv import load_dotenv
 from flask_cors import CORS
-from langchain_community.llms import OpenAI  
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
 
 import requests
 from bs4 import BeautifulSoup
@@ -43,8 +40,6 @@ app = Flask(__name__)
 # Untuk mengizinkan komunikasi dengan frontend
 CORS(app)
 
-llm = OpenAI()
-conversation = ConversationChain(llm=llm, memory=ConversationBufferMemory())
 
 
 # Ambil DB dari .env atau default ke SQLite
@@ -112,35 +107,7 @@ nlp = load_model()
 
 # Chatbot Init Geminni Model
 genai.configure(api_key=GEMINI_API_KEY) 
-
-# --- Tambahan: Dapatkan daftar model yang tersedia ---
-available_models = []
-try:
-    for m in genai.list_models():
-        # Hanya sertakan model yang mendukung generateContent
-        if 'generateContent' in m.supported_generation_methods:
-            available_models.append(m.name)
-    print(f"Available models for generateContent: {available_models}")
-
-    if not available_models:
-        raise ValueError("No models found that support 'generateContent'. Check your API key and region.")
-
-    # Gunakan model pertama yang ditemukan atau pilih yang spesifik
-    # Contoh: 'gemini-1.5-flash' atau 'gemini-1.0-pro'
-    # Ganti dengan nama model yang paling sesuai untuk kebutuhan Anda dari daftar di atas.
-    # Misalnya, jika Anda melihat 'models/gemini-1.5-flash', gunakan itu.
-    MODEL_TO_USE = "models/gemini-2.5-flash-lite" # Mengambil model pertama yang didukung
-    # Atau secara eksplisit: MODEL_TO_USE = "models/gemini-1.5-flash"
-    print(f"Using model: {MODEL_TO_USE}")
-
-except Exception as e:
-    print(f"Error listing models: {e}")
-    # Jika tidak dapat membuat model karena ini, set model ke None untuk penanganan error lebih lanjut
-    model = None
-    # Exit atau tangani secara berbeda jika ini adalah error fatal untuk aplikasi Anda
-    raise e # Re-raise error jika tidak ada model yang dapat ditemukan
-
-model = genai.GenerativeModel(MODEL_TO_USE)
+model = genai.GenerativeModel(CHATBOT_GEMINI_MODEL)
 
 
 # from transformers import AutoModel, AutoTokenizer, pipeline

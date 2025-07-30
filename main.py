@@ -20,19 +20,6 @@ def chatGeminiModel():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.json
-    user_input = data.get("message", "")
-    openaikey = OPENAI_API_KEY
-    
-    
-    if not user_input:
-        return jsonify({"error": "No input provided"}), 400
-    
-    response = conversation.predict(input=user_input)
-    return jsonify({"response": response})
-
 @app.route('/api/search', methods=['GET'])
 def search_nearby_places():
     lat = request.args.get('lat', '6.874138255514192')  # format: "lat,lng"
