@@ -30,6 +30,10 @@ from reportlab.pdfgen import canvas
 from textblob import TextBlob
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Chatbot
+import google.generativeai as genai
+
+
 # from transformers import pipeline
 
 load_dotenv()
@@ -104,6 +108,39 @@ def load_model():
 
 nlp = load_model()
 
+
+
+# Chatbot Init Geminni Model
+genai.configure(api_key=GEMINI_API_KEY) 
+
+# --- Tambahan: Dapatkan daftar model yang tersedia ---
+available_models = []
+try:
+    for m in genai.list_models():
+        # Hanya sertakan model yang mendukung generateContent
+        if 'generateContent' in m.supported_generation_methods:
+            available_models.append(m.name)
+    print(f"Available models for generateContent: {available_models}")
+
+    if not available_models:
+        raise ValueError("No models found that support 'generateContent'. Check your API key and region.")
+
+    # Gunakan model pertama yang ditemukan atau pilih yang spesifik
+    # Contoh: 'gemini-1.5-flash' atau 'gemini-1.0-pro'
+    # Ganti dengan nama model yang paling sesuai untuk kebutuhan Anda dari daftar di atas.
+    # Misalnya, jika Anda melihat 'models/gemini-1.5-flash', gunakan itu.
+    MODEL_TO_USE = "models/gemini-2.5-flash-lite" # Mengambil model pertama yang didukung
+    # Atau secara eksplisit: MODEL_TO_USE = "models/gemini-1.5-flash"
+    print(f"Using model: {MODEL_TO_USE}")
+
+except Exception as e:
+    print(f"Error listing models: {e}")
+    # Jika tidak dapat membuat model karena ini, set model ke None untuk penanganan error lebih lanjut
+    model = None
+    # Exit atau tangani secara berbeda jika ini adalah error fatal untuk aplikasi Anda
+    raise e # Re-raise error jika tidak ada model yang dapat ditemukan
+
+model = genai.GenerativeModel(MODEL_TO_USE)
 
 
 # from transformers import AutoModel, AutoTokenizer, pipeline

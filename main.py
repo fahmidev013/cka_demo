@@ -1,7 +1,23 @@
 from backend import *
 from frontend.utils import *
 import random
+ 
 
+@app.route('/chatbot', methods=['POST'])
+def chatGeminiModel():
+    data = request.json
+    user_message = data.get('message')
+
+    if not user_message:
+        return jsonify({"error": "No message provided"}), 400
+    print(user_message)
+    try:
+        # Panggil Gemini API
+        response = model.generate_content(user_message)
+        bot_response = response.text
+        return jsonify({"response": bot_response})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/chat", methods=["POST"])
