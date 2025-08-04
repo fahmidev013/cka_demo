@@ -23,14 +23,18 @@ data = load_data()
 def dataSciencePage():
     st.title("Data Sains")
     st.subheader("Analisa Sentimen, Segmentasi Pelanggan, dan Rekomendasi Produk menggunakan Machine Learning.")
-
+    st.write("Data Statistik Pelanggan")
+    st.dataframe(data)
     # **📌 Statistik Umum**
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    col1, col2 = st.columns(2)
+    col3, col4 = st.columns([3,1])
+    col5, col6 = st.columns(2)
+    col7, col8 = st.columns([3,1])
     col1.metric("Rata-rata Usia", f"{data['Age'].mean():.1f}")
-    col2.metric("Pendapatan Rata-rata", f"${data['Income'].mean():,.0f}")
-    col3.metric("Rata-rata Spending Score", f"{data['SpendingScore'].mean():.1f}")
-    col4.metric("Rata-rata Loyalty Score", f"{data['LoyaltyScore'].mean():.2f}")
-    col5.metric("Rata-rata CLV", f"${data['CLV'].mean():,.2f}")
+    col3.metric("Pendapatan Rata-rata Total selama setahun", f"Rp. {data['Income'].mean():,.0f}", width=1000)
+    col5.metric("Rata-rata Spending Score", f"{data['SpendingScore'].mean():.1f}")
+    col6.metric("Rata-rata Loyalty Score", f"{data['LoyaltyScore'].mean():.2f}")
+    col7.metric("Rata-rata CLV", f"Rp. {data['CLV'].mean():,.0f} ")
 
     # **📈 Visualisasi Cluster**
     st.subheader("📊 A. Segmentasi Pelanggan (Clustering)")
@@ -41,8 +45,8 @@ def dataSciencePage():
     # **🔮 Prediksi Cluster untuk Pelanggan Baru**
     st.write("##### Contoh : Prediksi Segmentasi Pelanggan Baru")
 
-    age = st.number_input("Masukkan Umur", min_value=25, max_value=60, step=1, key="1")
-    income = st.number_input("Masukkan Pendapatan Tahunan (dalam ratusan)", min_value=10000, max_value=200000, step=1000, key="2")
+    age = st.number_input("Masukkan Umur", min_value=19, max_value=60, step=1, key="1")
+    income = st.number_input("Masukkan Total Pendapatan Tahunan", min_value=50000000, max_value=1000000000, step=1000, key="2")
     spending = st.number_input("Masukkan Spending Score", min_value=50, max_value=100, step=1, key="3")
 
     if st.button("Prediksi Cluster", key="btn_cluster"):
@@ -74,8 +78,8 @@ def dataSciencePage():
     # **🔮 Prediksi Resiko untuk Pelanggan Baru**
     st.subheader("🔮D. Prediksi Churn (Tingkat Resiko Pelanggan)")
 
-    age_churn = st.number_input("Masukkan Umur", min_value=22, max_value=80, step=1, key="4")
-    income_churn = st.number_input("Masukkan Pendapatan Tahunan", min_value=10000, max_value=200000, step=1000, key="5")
+    age_churn = st.number_input("Masukkan Umur", min_value=19, max_value=60, step=1, key="4")
+    income_churn = st.number_input("Masukkan Pendapatan Tahunan", min_value=50000000, max_value=1000000000, step=1000, key="5")
     spending_churn = st.number_input("Masukkan Spending Score", min_value=50, max_value=100, step=1, key="6")
 
     if st.button("Prediksi Churn", key="btn_churn"):
