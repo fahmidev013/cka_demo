@@ -1,51 +1,6 @@
 Name,Age,Income,SpendingScore,LoyaltyScore,CLV,Churn,Review,Laptop,Smartphone,Tablet,Headphone,Smartwatch,Kamera,Speaker,Mouse,Keyboard
-Alice,41,59050,51,37.74,2228.55,1,Tidak akan beli lagi dari toko ini.,0,1,1,1,1,0,0,0,0
-Bob,32,70483,15,10.07,709.76,0,Pengiriman cepat dan berkualitas.,0,0,1,0,0,0,1,1,1
-Charlie,24,44732,76,65.12,2912.95,1,Barang datang rusak.,1,0,1,0,0,1,1,1,1
-David,47,50576,14,7.42,375.27,0,"Produk luar biasa, akan beli lagi!",1,1,0,0,0,0,0,1,0
-Eve,24,47566,27,20.65,982.24,1,Tidak akan beli lagi dari toko ini.,1,1,0,0,1,0,0,0,0
-Frank,19,79627,48,41.53,3306.91,1,Barang datang rusak.,0,1,1,0,1,0,1,0,1
-Grace,49,69846,16,9.8,684.49,1,Tidak puas dengan layanan pelanggan.,0,1,0,1,0,0,1,1,0
-Hannah,26,76021,27,22.88,1739.36,1,Saya kecewa dengan produk ini.,0,1,0,1,1,0,1,1,1
-Ivan,22,35346,85,55.84,1973.72,1,Pengiriman sangat terlambat.,1,0,1,0,1,0,0,0,0
-Jack,49,44014,42,27.16,1195.42,1,Tidak akan beli lagi dari toko ini.,1,1,0,0,0,0,0,1,1
-Kara,54,96418,27,16.08,1550.4,1,Layanan lambat dan tidak membantu.,1,0,0,1,0,1,1,0,0
-Leo,42,90875,78,49.76,4521.94,0,"Barang sampai tepat waktu, terima kasih!",1,0,1,0,0,1,0,1,0
-Mona,51,57282,76,55.48,3178.01,1,Kualitas mengecewakan.,0,1,0,1,1,0,1,1,1
-Nina,56,92422,80,55.39,5119.25,0,"Produk luar biasa, akan beli lagi!",0,0,0,1,0,1,1,1,0
-Oscar,27,97763,74,62.73,6132.67,1,Respon customer service lambat.,0,0,0,0,1,0,0,1,1
-Paul,19,94446,49,27.79,2624.65,1,Produk tidak sesuai deskripsi.,0,1,1,1,0,1,1,1,1
-Quinn,53,96587,39,26.57,2566.32,0,Saya puas dengan produk ini.,1,0,0,1,1,1,0,0,1
-Rachel,49,83744,25,14.96,1252.81,1,Layanan lambat dan tidak membantu.,1,1,1,0,1,1,0,1,0
-Steve,44,92178,29,18.19,1676.72,1,Respon customer service lambat.,0,0,1,1,0,1,1,0,1
-Tina,36,48903,81,59.18,2894.08,0,"Produk luar biasa, akan beli lagi!",0,1,0,1,1,0,1,1,1
-Uma,26,94299,72,49.31,4649.88,1,Produk tidak sesuai deskripsi.,1,1,0,1,1,1,1,1,0
-Victor,58,87045,15,12.61,1097.64,1,Saya kecewa dengan produk ini.,0,0,0,1,1,1,1,0,0
-Wendy,59,54197,38,26.49,1435.68,1,Respon customer service lambat.,1,0,0,0,1,1,0,1,0
-Xavier,49,66089,11,7.57,500.29,1,Saya kecewa dengan produk ini.,0,1,0,0,0,0,0,1,0
-Yara,49,83904,18,12.38,1038.73,1,Tidak puas dengan layanan pelanggan.,1,1,0,1,0,0,1,0,0
-Zack,55,94066,21,15.68,1474.95,0,Pengiriman cepat dan berkualitas.,0,0,1,0,1,0,1,1,0
-Aaron,41,48092,60,31.91,1534.62,1,Kualitas mengecewakan.,1,1,1,0,1,1,0,0,0
-Bella,40,62028,20,13.13,814.43,0,Pengiriman cepat dan berkualitas.,1,1,0,1,0,1,1,1,1
-Cindy,34,79576,89,50.26,3999.49,1,Harga mahal tapi kualitas buruk.,0,1,0,1,1,0,0,0,1
-Dylan,46,79586,15,8.87,705.93,1,Respon customer service lambat.,1,1,0,1,1,0,0,0,0
-Eliza,44,82445,32,26.45,2180.67,1,Layanan lambat dan tidak membantu.,0,0,1,1,0,0,0,0,0
-Fiona,53,79395,72,49.08,3896.71,0,"Produk luar biasa, akan beli lagi!",1,0,1,0,1,0,1,1,1
-George,33,93749,58,50.84,4766.2,0,"Produk luar biasa, akan beli lagi!",1,1,1,0,0,1,0,0,0
-Hazel,22,41994,43,28.17,1182.97,0,Pengiriman cepat dan berkualitas.,1,1,1,0,1,0,0,0,1
-Irene,30,54898,28,17.06,936.56,1,Layanan lambat dan tidak membantu.,1,1,1,0,0,0,1,0,0
-Jonas,44,49322,32,27.11,1337.12,0,"Sangat puas, recommended!",0,1,1,1,0,0,0,1,1
-Kenny,41,45938,63,47.62,2187.57,1,Saya kecewa dengan produk ini.,1,1,0,1,1,1,0,0,0
-Liam,23,64739,35,28.93,1872.9,0,"Kualitas sangat baik, saya suka!",0,1,0,1,1,0,1,1,1
-Mira,25,60899,45,40.46,2463.97,0,"Sangat puas, recommended!",1,0,1,1,1,1,1,1,1
-Noah,49,49498,43,23.18,1147.36,0,"Harga terjangkau, kualitas oke.",0,0,1,1,0,1,1,1,1
-Olga,60,72066,60,41.38,2982.09,0,"Harga terjangkau, kualitas oke.",1,1,1,1,1,0,1,1,0
-Peter,44,54004,18,11.64,628.61,1,Tidak akan beli lagi dari toko ini.,1,1,1,0,1,0,1,1,1
-Queen,51,92538,18,11.89,1100.28,0,"Produk luar biasa, akan beli lagi!",1,0,1,0,0,1,1,0,0
-Ron,55,35349,36,25.91,915.89,1,Layanan lambat dan tidak membantu.,0,1,0,0,0,0,0,0,0
-Sally,25,64333,90,47.1,3030.08,1,Tidak akan beli lagi dari toko ini.,0,0,0,0,1,1,0,1,1
-Tom,26,40464,84,44.21,1788.91,1,Tidak puas dengan layanan pelanggan.,1,0,0,1,1,0,0,0,0
-Ursula,35,96557,31,16.2,1564.22,1,Tidak akan beli lagi dari toko ini.,0,0,1,0,0,1,0,1,0
-Vera,22,97027,55,45.4,4405.03,0,"Barang sampai tepat waktu, terima kasih!",1,0,1,0,0,0,0,1,1
-Will,34,87186,14,7.49,653.02,0,Saya puas dengan produk ini.,1,0,1,0,1,0,0,1,1
-Zoe,27,65180,65,45.29,2952.0,0,"Kualitas sangat baik, saya suka!",0,0,1,0,1,1,0,0,1
+Anton,25,60000000,85,67.5,3825,0.5,"Very good services!",1,1,0,0,1,0,1,0,1
+Iis,32,120000000,80,30.0,2400,1,"I'm very unhappy about this product.",0,1,1,1,0,1,0,1,0
+Rani,45,150000000,65,47.5,5525,0.5,"Shipping is fast dan safe.",1,0,1,1,0,1,0,1,0
+Asep,29,500000000,30,25.0,1500,1,"I'm unsatisfied with the product.",0,1,0,1,1,1,1,0,1
+Doni,38,750000000,75,56.25,5625,0.5,"Quality is excellent, good job!",1,1,0,0,1,1,1,0,1
