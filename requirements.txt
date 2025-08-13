@@ -32,3 +32,6 @@ torch==2.7.1+cpu
 
 #Chatbot
 google-generativeai
+
+# Memori Tools
+psutil
