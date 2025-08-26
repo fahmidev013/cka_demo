@@ -2,7 +2,7 @@ from packages import *
 from utils.contants import BASE_URL
 from streamlit_geolocation import streamlit_geolocation
 import streamlit.components.v1 as components
-import pandas as pd
+import polars as pl
 
 def webScrappingPage():
     # st.set_page_config(page_title="Pencarian Perusahaan Otomatis", layout="centered")
@@ -48,19 +48,25 @@ def webScrappingPage():
                 if not data:
                     st.warning("Tidak ditemukan perusahaan.")
                 else:
-                    df = pd.DataFrame(data)
+                    df = pl.DataFrame(data)
                     st.success(f"Ditemukan {len(df)} perusahaan.")
                     st.dataframe(df)
 
                     if "latitude" in df.columns and "longitude" in df.columns:
                         st.map(df.rename(columns={"latitude": "lat", "longitude": "lon"}))
 
+                    df = df.explode("reviews")
+                    df = df.explode("types")
+                    print(df)
+                    csv_data = df.write_csv()
+
                     st.download_button(
                         "⬇️ Download CSV",
-                        data=df.to_csv(index=False).encode("utf-8"),
+                        data=csv_data.encode("utf-8"),  # encode ke bytes
                         file_name="data_perusahaan.csv",
                         mime="text/csv"
                     )
+
                     count = 1
                     for d in data:
                         st.write(f"## 🏢 {count} **{d['name']}**")

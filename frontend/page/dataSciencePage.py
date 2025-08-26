@@ -1,6 +1,6 @@
 from packages import *
 from utils.contants import BASE_URL
-import pandas as pd
+import polars as pl
 import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,14 +9,16 @@ import seaborn as sns
 @st.cache_data
 def load_data():
     response = requests.get(f'{BASE_URL}/customers')
-    return pd.DataFrame(response.json())
-
+    return pl.DataFrame(response.json())
+    
 @st.cache_data
 def load_reviews():
     response = requests.get(f'{BASE_URL}/reviews')
-    return pd.DataFrame(response.json())
+    data = pl.DataFrame(response.json())
+    print(data)
+    return data
 
-reviews = [] # load_reviews()
+reviews = load_reviews()
 data = load_data()
 
 

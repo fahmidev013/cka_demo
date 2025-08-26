@@ -17,7 +17,7 @@ from data.models import Company, get_engine_and_session
 
 
 # Data Science Libs
-import pandas as pd
+import polars as pl
 import numpy as np
 import xgboost as xgb
 from sklearn.cluster import KMeans
@@ -29,6 +29,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Chatbot
 import google.generativeai as genai
+
+import streamlit as st
 
 
 # from transformers import pipeline
@@ -50,32 +52,74 @@ CORS(app)
 
 # Load dataset
 root_directory = os.getcwd()
-data = pd.read_csv(f"{root_directory}/data/customer_data.csv")
+
+@st.cache_resource
+def load_customers_data():
+    data = pl.scan_csv(f"{root_directory}/data/customer_data.csv")
+    return data
+customers_data = load_customers_data()
 products = ["Laptop", "Smartphone", "Tablet", "Headphone", "Smartwatch", "Kamera", "Speaker", "Mouse", "Keyboard"]
 
 
-# Preprocessing: Standarisasi Data
+# ===============================
+# 🔹 Preprocessing: pilih kolom & materialize
+# ===============================
+# Ambil hanya kolom yang diperlukan, lalu collect → baru load ke memory
+customers_data = customers_data.select(["Name","Review","Age", "Income", "SpendingScore"]).collect()
+
+# Standarisasi data
 scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data[["Age", "Income", "SpendingScore"]])
+data_scaled = scaler.fit_transform(
+    customers_data.select(["Age", "Income", "SpendingScore"]).to_numpy()
+)
 
-# K-Means Clustering
+# ===============================
+# 🔹 K-Means Clustering
+# ===============================
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-data["Cluster"] = kmeans.fit_predict(data_scaled)
+clusters = kmeans.fit_predict(data_scaled)
 
-# **Loyalty Score** → Skor berdasarkan jumlah transaksi & nilai total pembelian
-data["LoyaltyScore"] = (data["SpendingScore"] + (data["Income"] / 1000)) / 2
+customers_data = customers_data.with_columns(
+    pl.Series("Cluster", clusters)
+)
 
-# **Customer Lifetime Value (CLV)** → Menghitung CLV sederhana
-data["CLV"] = data["SpendingScore"] * data["Income"] / 1000
+# ===============================
+# 🔹 Loyalty Score
+# ===============================
+customers_data = customers_data.with_columns(
+    ((pl.col("SpendingScore") + (pl.col("Income") / 1000)) / 2)
+    .alias("LoyaltyScore")
+)
 
-# **Prediksi Churn**
-# Simulasi: Anggap pelanggan dengan Spending Score < 30 memiliki risiko churn tinggi
-data["Churn"] = (data["SpendingScore"] < 30).astype(int)
+# ===============================
+# 🔹 Customer Lifetime Value (CLV)
+# ===============================
+customers_data = customers_data.with_columns(
+    (pl.col("SpendingScore") * pl.col("Income") / 1000)
+    .alias("CLV")
+)
 
-# Model Prediksi Churn
-X = data[["Age", "Income", "SpendingScore", "LoyaltyScore", "CLV"]]
-y = data["Churn"]
-churn_model = xgb.XGBClassifier(objective="binary:logistic", base_score=0.5)
+# ===============================
+# 🔹 Prediksi Churn
+# SpendingScore < 30 → churn
+# ===============================
+customers_data = customers_data.with_columns(
+    (pl.col("SpendingScore") < 30).cast(pl.Int64).alias("Churn")
+)
+
+# ===============================
+# 🔹 Model Prediksi Churn (XGBoost)
+# ===============================
+X = customers_data.select(["Age", "Income", "SpendingScore", "LoyaltyScore", "CLV"]).to_numpy()
+y = customers_data["Churn"].to_numpy()
+
+churn_model = xgb.XGBClassifier(
+    objective="binary:logistic",
+    base_score=0.5,
+    max_bin=256,
+    tree_method="hist",
+    max_depth=4
+)
 churn_model.fit(X, y)
 
 
@@ -90,7 +134,7 @@ churn_model.fit(X, y)
 # model_name = "gagan3012/bert-tiny-finetuned-ner"
 
 from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
-import streamlit as st
+
 
 # Load model dan tokenizer
 @st.cache_resource

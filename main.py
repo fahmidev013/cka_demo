@@ -126,7 +126,7 @@ def extract_information():
 
 @app.route('/customers', methods=['GET'])
 def get_customers():
-    return jsonify(data.to_dict(orient="records"))
+    return jsonify(customers_data.to_dicts())
 
 
 # Endpoiunt untuk Prediksi Cluster
@@ -154,7 +154,7 @@ def generate_report():
     c.drawString(100, 750, "Customer Analytics Report")
     
     y_position = 730
-    for index, row in data.iterrows():
+    for index, row in customers_data.iter_rows():
         text = f"{row['Name']} - Age: {row['Age']}, Income: {row['Income']}, Spending Score: {row['SpendingScore']}, Cluster: {row['Cluster']}"
         c.drawString(100, y_position, text)
         y_position -= 20
@@ -173,7 +173,7 @@ def generate_report_churn():
     c.drawString(100, 750, "Customer Analytics Report")
     
     y_position = 730
-    for index, row in data.iterrows():
+    for index, row in customers_data.iter_rows():
         text = f"{row['Name']} - Loyalty: {row['LoyaltyScore']:.2f}, CLV: {row['CLV']:.2f}, Churn Risk: {row['Churn']}"
         c.drawString(100, y_position, text)
         y_position -= 20
@@ -184,16 +184,19 @@ def generate_report_churn():
     c.save()
     return send_file(pdf_filename, as_attachment=True)
 
+import polars as pl
+
 # **Fungsi Analisis Sentimen**
 def analyze_sentiment(text):
     sentiment = TextBlob(text).sentiment.polarity
     return "Positif" if sentiment > 0 else "Negatif" if sentiment < 0 else "Netral"
 
-data["Sentiment"] = data["Review"].apply(analyze_sentiment)
+customers_data = customers_data.with_columns(pl.col("Review").map_elements(analyze_sentiment, return_dtype=pl.Utf8).alias("Sentiment"))
 
 @app.route('/reviews', methods=['GET'])
 def get_reviews():
-    return jsonify(data[["Name", "Review", "Sentiment"]].to_dict(orient="records"))
+    reviews_data = customers_data.select(["Name", "Review", "Sentiment"]).to_dicts()
+    return jsonify(reviews_data)
 
 
 # Enpoint untuk Sentimen Ulasan
@@ -210,24 +213,35 @@ def analyze_review():
 
 # **Fungsi Rekomendasi Produk**
 def recommend_products(customer_name):
-    if customer_name not in data["Name"].values:
+    if customer_name not in customers_data["Name"].to_list():
         return []
     
-    # Ambil data pelanggan
-    customer_index = data[data["Name"] == customer_name].index[0]
-    # Hitung kemiripan dengan pelanggan lain
-    product_matrix = data.iloc[:, 1:].values
+     # Ambil index customer
+    customer_index = (
+        customers_data.select(pl.when(pl.col("Name") == customer_name).arg_max().alias("idx"))
+        .item()
+    )
+
+    # Ambil matriks produk (semua kolom kecuali Name → mulai dari kolom ke-1)
+    product_matrix = customers_data[:, 1:].to_numpy()
+
+    # Hitung similarity antar pelanggan
     similarities = cosine_similarity(product_matrix)
-    
-    
-    # Rekomendasi berdasarkan pelanggan paling mirip
-    similar_customer_index = np.argsort(similarities[customer_index])[-2]  # Ambil pelanggan paling mirip selain dirinya sendiri
-    recommended_products = []
-    
-    for product in products:
-        if data.loc[customer_index, product] == 0 and data.loc[similar_customer_index, product] == 1:
-            recommended_products.append(product)
-    
+
+    # Ambil pelanggan paling mirip selain dirinya
+    similar_customer_index = np.argsort(similarities[customer_index])[-2]
+
+    # Konversi baris customer & baris similar customer ke dict
+    customer_row = customers_data.row(customer_index, named=True)
+    similar_row = customers_data.row(similar_customer_index, named=True)
+
+    # Buat rekomendasi produk
+    recommended_products = [
+        product
+        for product in products
+        if customer_row[product] == 0 and similar_row[product] == 1
+    ]
+
     return recommended_products
 
 #Endpoint untuk Sistem Rekomendasi
