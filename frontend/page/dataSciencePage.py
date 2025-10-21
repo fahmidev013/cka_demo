@@ -16,16 +16,20 @@ def load_reviews():
     response = requests.get(f'{BASE_URL}/reviews')
     return pd.DataFrame(response.json())
 
-reviews = [] # load_reviews()
-data = load_data()
 
 
 def dataSciencePage():
+    # Load data lazily on page access
+    data = load_data()
+    try:
+        reviews = load_reviews()
+    except Exception:
+        reviews = []
     st.title("Data Sains")
     st.subheader("Analisa Sentimen, Segmentasi Pelanggan, dan Rekomendasi Produk menggunakan Machine Learning.")
     st.write("Data Statistik Pelanggan")
     st.dataframe(data)
-    # **📌 Statistik Umum**
+    # ** Statistik Umum**
     col1, col2 = st.columns(2)
     col3, col4 = st.columns([3,1])
     col5, col6 = st.columns(2)

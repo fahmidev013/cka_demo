@@ -1,10 +1,5 @@
 import streamlit as st
 import requests
-from page import *
-from utils import *
-import folium
-from streamlit_folium import st_folium
-import streamlit.components.v1 as components
 
-
-
+# Keep this package lightweight to minimize memory.
+# Pages and heavy libs will be imported on-demand by app_ui.py

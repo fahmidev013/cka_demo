@@ -1,10 +1,12 @@
-from packages import *
+from packages import st, requests
 from utils.contants import BASE_URL
-from streamlit_geolocation import streamlit_geolocation
-import streamlit.components.v1 as components
-import pandas as pd
 
 def webScrappingPage():
+    # Import optional/heavy deps only when this page runs
+    try:
+        from streamlit_geolocation import streamlit_geolocation
+    except Exception:
+        streamlit_geolocation = lambda: {"latitude": -6.87, "longitude": 107.51}
     # st.set_page_config(page_title="Pencarian Perusahaan Otomatis", layout="centered")
     st.title("🔍 Cari Perusahaan di Sekitar Saya")
     location = streamlit_geolocation()
@@ -48,6 +50,8 @@ def webScrappingPage():
                 if not data:
                     st.warning("Tidak ditemukan perusahaan.")
                 else:
+                    # import pandas only when needed
+                    import pandas as pd
                     df = pd.DataFrame(data)
                     st.success(f"Ditemukan {len(df)} perusahaan.")
                     st.dataframe(df)

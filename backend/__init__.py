@@ -2,7 +2,6 @@ import os
 from .functions import *
 from flask import Flask, request, jsonify, send_file
 from frontend.utils.contants import *
-from frontend.utils.functions import *
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -11,12 +10,14 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
+import gc
 from sqlalchemy import Column, Integer, Float, String, Text, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from data.models import Company, get_engine_and_session
 
 
 # Data Science Libs
+import threading
 import pandas as pd
 import numpy as np
 import xgboost as xgb
@@ -32,6 +33,7 @@ import google.generativeai as genai
 
 
 # from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 
 load_dotenv()
 
@@ -39,6 +41,22 @@ app = Flask(__name__)
 
 # Untuk mengizinkan komunikasi dengan frontend
 CORS(app)
+
+@app.after_request
+def _cleanup_after_request(response):
+    # Garbage collect after every request to free unused memory
+    try:
+        gc.collect()
+    except Exception:
+        pass
+    return response
+
+@app.teardown_appcontext
+def _teardown_cleanup(exception=None):
+    try:
+        gc.collect()
+    except Exception:
+        pass
 
 
 
@@ -48,75 +66,92 @@ CORS(app)
 
 # Activate Data Science Page
 
-# Load dataset
-root_directory = os.getcwd()
-data = pd.read_csv(f"{root_directory}/data/customer_data.csv")
-products = ["Laptop", "Smartphone", "Tablet", "Headphone", "Smartwatch", "Kamera", "Speaker", "Mouse", "Keyboard"]
+# =========================
+# Lazy-loaded resources
+# =========================
+_lock = threading.RLock()
+_data = None
+_products = [
+    "Laptop", "Smartphone", "Tablet", "Headphone", "Smartwatch",
+    "Kamera", "Speaker", "Mouse", "Keyboard"
+]
+_scaler = None
+_kmeans = None
+_churn_model = None
+_nlp = None
+_gemini_model = None
+_gemini_configured = False
+
+def get_products():
+    return list(_products)
+
+def _load_and_prepare_data():
+    global _data, _scaler, _kmeans
+    root_directory = os.getcwd()
+    df = pd.read_csv(f"{root_directory}/data/customer_data.csv")
+    # Preprocessing
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(df[["Age", "Income", "SpendingScore"]])
+    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+    df["Cluster"] = kmeans.fit_predict(data_scaled)
+    df["LoyaltyScore"] = (df["SpendingScore"] + (df["Income"] / 1000)) / 2
+    df["CLV"] = df["SpendingScore"] * df["Income"] / 1000
+    df["Churn"] = (df["SpendingScore"] < 30).astype(int)
+    _data, _scaler, _kmeans = df, scaler, kmeans
+
+def get_data():
+    global _data
+    with _lock:
+        if _data is None:
+            _load_and_prepare_data()
+        return _data
+
+def get_scaler():
+    global _scaler
+    with _lock:
+        if _scaler is None:
+            _load_and_prepare_data()
+        return _scaler
+
+def get_kmeans():
+    global _kmeans
+    with _lock:
+        if _kmeans is None:
+            _load_and_prepare_data()
+        return _kmeans
+
+def get_churn_model():
+    global _churn_model
+    with _lock:
+        if _churn_model is None:
+            df = get_data()
+            X = df[["Age", "Income", "SpendingScore", "LoyaltyScore", "CLV"]]
+            y = df["Churn"]
+            model = xgb.XGBClassifier(objective="binary:logistic", base_score=0.5)
+            model.fit(X, y)
+            _churn_model = model
+        return _churn_model
 
 
-# Preprocessing: Standarisasi Data
-scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data[["Age", "Income", "SpendingScore"]])
-
-# K-Means Clustering
-kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-data["Cluster"] = kmeans.fit_predict(data_scaled)
-
-# **Loyalty Score** → Skor berdasarkan jumlah transaksi & nilai total pembelian
-data["LoyaltyScore"] = (data["SpendingScore"] + (data["Income"] / 1000)) / 2
-
-# **Customer Lifetime Value (CLV)** → Menghitung CLV sederhana
-data["CLV"] = data["SpendingScore"] * data["Income"] / 1000
-
-# **Prediksi Churn**
-# Simulasi: Anggap pelanggan dengan Spending Score < 30 memiliki risiko churn tinggi
-data["Churn"] = (data["SpendingScore"] < 30).astype(int)
-
-# Model Prediksi Churn
-X = data[["Age", "Income", "SpendingScore", "LoyaltyScore", "CLV"]]
-y = data["Churn"]
-churn_model = xgb.XGBClassifier(objective="binary:logistic", base_score=0.5)
-churn_model.fit(X, y)
+#  INFORMATION EXTRACTOR (Lazy)
+# Load model NER dari Hugging Face saat pertama kali dipakai
+def get_nlp():
+    global _nlp
+    with _lock:
+        if _nlp is None:
+            model_name = "dslim/distilbert-NER"
+            # tokenizer = AutoTokenizer.from_pretrained(model_name)
+            _nlp = pipeline("ner", model=model_name)
+        return _nlp
 
 
-
-
-#  INFORMATION XTRACTOR
-# Load model NER dari Hugging Face
-# nlp = pipeline("ner", model="dbmdz/bert-base-cased-finetuned-conll03-english")
-# nlp = pipeline("ner", model="dslim/distilbert-NER")
-# nlp = pipeline("ner", from_tf=True, model="aadhistii/DistilBERT-Indonesian-NER")
-# nlp = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-english")
-# model_name = "gagan3012/bert-tiny-finetuned-ner"
-
-from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
-import streamlit as st
-
-# Load model dan tokenizer
-@st.cache_resource
-def load_model():
-    model_name = "dslim/distilbert-NER"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    # model = AutoModelForTokenClassification.from_pretrained(model_name)
-    nlp = pipeline("ner", model=model_name)
-    return nlp
-
-nlp = load_model()
-
-
-
-# Chatbot Init Geminni Model
-genai.configure(api_key=GEMINI_API_KEY) 
-model = genai.GenerativeModel(CHATBOT_GEMINI_MODEL)
-
-
-# from transformers import AutoModel, AutoTokenizer, pipeline
-# model_name = "aadhistii/DistilBERT-Indonesian-NER"
-
-# model = AutoModel.from_pretrained(model_name, from_tf=True)
-# tokenizer = AutoTokenizer.from_pretrained(model_name)
-# nlp = pipeline(tokenizer, model=f"{model}")
-
-if __name__ == '__main__':
-    app.run()
-
+# Chatbot Init Gemini Model (Lazy)
+def get_gemini_model():
+    global _gemini_model, _gemini_configured
+    with _lock:
+        if not _gemini_configured:
+            genai.configure(api_key=GEMINI_API_KEY)
+            _gemini_configured = True
+        if _gemini_model is None:
+            _gemini_model = genai.GenerativeModel(CHATBOT_GEMINI_MODEL)
+        return _gemini_model

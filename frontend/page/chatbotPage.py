@@ -1,4 +1,4 @@
-from packages import *
+from packages import st, requests
 from utils.contants import BASE_URL
 
 def chatbotPage():
